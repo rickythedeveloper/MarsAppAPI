@@ -10,20 +10,23 @@ const router = express.Router();
 router.get('/test', (req, res) => res.send('Hello world !'));
 router.get('/rovers/:roverName', async (req, res) => {
     const roverName: string = req.params.roverName
-    const data = await roverPhotoData(roverName, '')
+    const sol = Number(req.query.sol) || 1000
+    const data = await getRoverPhotoData(roverName, '', sol)
     res.send(data)
 })
 
 router.get('/rovers/:roverName/photos', async (req, res) => {
     const roverName: string = req.params.roverName
-    const data = await roverPhotoData(roverName, '')
+    const sol = Number(req.query.sol) || 1000
+    const data = await getRoverPhotoData(roverName, '', sol)
     res.send(data)
 })
 
 router.get('/rovers/:roverName/photos/:cameraType', async (req, res) => {
     const roverName: string = req.params.roverName
-    const cameraType: string = req.params.cameraType
-    const data = await roverPhotoData(roverName, cameraType)
+    const cameraType: string = String(req.params.cameraType)
+    const sol = Number(req.query.sol) || 1000
+    const data = await getRoverPhotoData(roverName, cameraType, sol)
     res.send(data)
 })
 
@@ -33,7 +36,7 @@ app.listen(port, () => {
     console.log(`Test backend is running on port ${port}`);
 });
 
-async function roverPhotoData(roverName: string, cameraType: string): Promise<RoverPhotoData[] | string> {
+async function getRoverPhotoData(roverName: string, cameraType: string, sol: number): Promise<RoverPhotoData[] | string> {
     const validRoverNames: string[] = Object.values(RoverName)
     if (!(validRoverNames.includes(roverName))) {
         return 'Check the rover name!'
@@ -44,7 +47,6 @@ async function roverPhotoData(roverName: string, cameraType: string): Promise<Ro
     }
     let cameraTypeQuery = cameraTypeUppercase === '' ? '' : `camera=${cameraTypeUppercase}`
     const apiKey = 'aRWUnNqpH11eSQvCm114SVuAnhMFivU6KLWFgF7k'
-    const sol = 1000
     const url = `https://api.nasa.gov/mars-photos/api/v1/rovers/${roverName}/photos?sol=${sol}&${cameraTypeQuery}&api_key=${apiKey}`
     const response = await axios.get(url)
     const data: RoverPhotoData[] = response.data
