@@ -1,23 +1,6 @@
 import express from "express";
 import axios from 'axios';
-
-enum RoverName {
-    curiosity = 'curiosity',
-    opportunity = 'opportunity',
-    spirit = 'spirit'
-}
-
-enum RoverCameraType {
-    FHAZ,
-    RHAZ,
-    MAST,
-    CHEMCAM,
-    MAHLI,
-    MARDI,
-    NAVCAM,
-    PANCAM,
-    MINITES
-}
+import {RoverCameraType, RoverName, RoverPhotoData} from "./rover";
 
 const app = express();
 const port = 8000;
@@ -50,8 +33,9 @@ app.listen(port, () => {
     console.log(`Test backend is running on port ${port}`);
 });
 
-async function roverPhotoData(roverName: string, cameraType: string) {
-    if (!(roverName in RoverName)) {
+async function roverPhotoData(roverName: string, cameraType: string): Promise<RoverPhotoData[] | string> {
+    const validRoverNames: string[] = Object.values(RoverName)
+    if (!(validRoverNames.includes(roverName))) {
         return 'Check the rover name!'
     }
     const cameraTypeUppercase = cameraType.toUpperCase()
@@ -63,5 +47,6 @@ async function roverPhotoData(roverName: string, cameraType: string) {
     const sol = 1000
     const url = `https://api.nasa.gov/mars-photos/api/v1/rovers/${roverName}/photos?sol=${sol}&${cameraTypeQuery}&api_key=${apiKey}`
     const response = await axios.get(url)
-    return response.data
+    const data: RoverPhotoData[] = response.data
+    return data
 }
