@@ -1,4 +1,5 @@
 import express from "express";
+const cors = require('cors')
 import axios from 'axios';
 import {RoverCameraType, RoverName, RoverPhotoData} from "./rover";
 
@@ -7,22 +8,31 @@ const port = 8000;
 
 app.use(express.json());
 const router = express.Router();
+
+const whitelist = ['http://localhost:3000']
+const corsOptions = {
+    origin: function (origin: any, callback: any) {
+        const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+        callback(null, originIsWhitelisted);
+    }
+};
+
 router.get('/test', (req, res) => res.send('Hello world !'));
-router.get('/rovers/:roverName', async (req, res) => {
+router.get('/rovers/:roverName', cors(corsOptions), async (req, res) => {
     const roverName: string = req.params.roverName
     const sol = Number(req.query.sol) || 1000
     const data = await getRoverPhotoData(roverName, '', sol)
     res.send(data)
 })
 
-router.get('/rovers/:roverName/photos', async (req, res) => {
+router.get('/rovers/:roverName/photos', cors(corsOptions), async (req, res) => {
     const roverName: string = req.params.roverName
     const sol = Number(req.query.sol) || 1000
     const data = await getRoverPhotoData(roverName, '', sol)
     res.send(data)
 })
 
-router.get('/rovers/:roverName/photos/:cameraType', async (req, res) => {
+router.get('/rovers/:roverName/photos/:cameraType', cors(corsOptions), async (req, res) => {
     const roverName: string = req.params.roverName
     const cameraType: string = String(req.params.cameraType)
     const sol = Number(req.query.sol) || 1000
