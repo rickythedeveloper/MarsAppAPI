@@ -48,7 +48,8 @@ app.listen(port, () => {
 
 async function getRoverPhotoData(roverName: string, cameraType: string, sol: number): Promise<RoverPhotoData[] | string> {
     const validRoverNames: string[] = Object.values(RoverName)
-    if (!(validRoverNames.includes(roverName))) {
+    const roverNameLowercased = roverName.toLowerCase()
+    if (!(validRoverNames.includes(roverNameLowercased))) {
         return 'Check the rover name!'
     }
     const cameraTypeUppercase = cameraType.toUpperCase()
@@ -57,7 +58,7 @@ async function getRoverPhotoData(roverName: string, cameraType: string, sol: num
     }
     let cameraTypeQuery = cameraTypeUppercase === '' ? '' : `camera=${cameraTypeUppercase}`
     const apiKey = 'aRWUnNqpH11eSQvCm114SVuAnhMFivU6KLWFgF7k'
-    const url = `https://api.nasa.gov/mars-photos/api/v1/rovers/${roverName}/photos?sol=${sol}&${cameraTypeQuery}&api_key=${apiKey}`
+    const url = `https://api.nasa.gov/mars-photos/api/v1/rovers/${roverNameLowercased}/photos?sol=${sol}&${cameraTypeQuery}&api_key=${apiKey}`
     const response = await axios.get(url)
     const data: RoverPhotoData[] = response.data
     return data
